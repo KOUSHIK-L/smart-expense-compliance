@@ -9,11 +9,37 @@ layer to learn how it works. An agentic expense-auditing system on **Google ADK
 An expense payload comes in and flows through a graph workflow:
 
 ```
-START -> parse -> route ($100?) --< AUTO_APPROVE >--> auto-approve (done)
-                              \--< NEEDS_REVIEW >--> security checkpoint
-security checkpoint --< CLEAN >--> LLM auditor (Gemini) --\
-                    \--< SECURITY_EVENT (injection) >------>-- request approval (pause)
-                                                              -> manager decision -> done
+Start
+  │
+  ▼
+Parse Expense Request
+  │
+  ▼
+Is Expense < $100?
+  ├── Yes ──► Auto Approve ──► Done
+  │
+  └── No ──► Security Checkpoint
+                 │
+                 ▼
+      Prompt Injection Detected?
+          ├── Yes ──► Security Event
+          │             │
+          │             ▼
+          │      Pause Request
+          │             │
+          │             ▼
+          │    Manager Review & Decision
+          │             │
+          │             ▼
+          │            Done
+          │
+          └── No ──► Google Gemini LLM Auditor
+                         │
+                         ▼
+          Generate Risk Assessment & Audit Report
+                         │
+                         ▼
+                        Done
 ```
 
 - **Triage**: under $100 auto-approves; $100+ needs review.
